@@ -12,10 +12,11 @@ scikit-learn = "*"
 mlflow = "*"
 hyperopt = "*"
 dotenv = "*"
-pytest = "*"
-pylint = "*"
+
 
 [dev-packages]
+pytest = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.8"
