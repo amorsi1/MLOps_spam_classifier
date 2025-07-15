@@ -5,6 +5,7 @@ from tqdm import tqdm
 import shutil
 import pandas as pd
 from sentence_transformers import SentenceTransformer
+from typing import List
 
 
 def download_phishing_dataset_with_progress(
@@ -62,8 +63,10 @@ def download_phishing_dataset_with_progress(
         'size_mb': file_path.stat().st_size / (1024 * 1024),
         'exists': file_path.exists()
     }
-def csv_preprocessing(df, fname: str):
-    df = df.drop(columns=['receiver'])
+def csv_preprocessing(df, fname: str, 
+                      columns_to_drop = ['receiver', 'urls', 'date']):
+    existing_columns_to_drop = [col for col in columns_to_drop if col in df.columns]
+    df = df.drop(columns=existing_columns_to_drop)
     df['source'] = fname
     return df
 
@@ -76,8 +79,15 @@ def embed_text(df, text_column='body', embedding_model="all-MiniLM-L6-v2"):
     df['embedding'] = df[text_column].apply(lambda x: model.encode(str(x)))
     print('Embedding dtype:', type(df['embedding'][0]))
     return df
+def combine_dfs_and_shuffle(dfs: List[pd.DataFrame]):
+    combined_df = pd.concat(dfs, ignore_index=True)
+    combined_df = combined_df.sample(frac=1).reset_index(drop=True)  # Shuffle the DataFrame
+    return combined_df
 
-def process_downloaded_files(input_dir, output_dir='data/interim',files_to_use=None):
+def process_downloaded_files(input_dir,
+                             interim_dir='data/interim',
+                             processed_dir = 'data/processed',
+                             files_to_use=None):
     dfs = []
     for file in tqdm(os.listdir(input_dir)):
         if files_to_use and file not in files_to_use:
@@ -89,11 +99,13 @@ def process_downloaded_files(input_dir, output_dir='data/interim',files_to_use=N
             df = pd.read_csv(f'{input_dir}/{file}')
             df = csv_preprocessing(df, file)
             df = embed_text(df)
-            output_path = f'{output_dir}/{file}'
+            output_path = f'{interim_dir}/processed_{file}.pkl'
             print(f'Saving {file} to: {output_path}')
-            df.to_csv(output_path, index=False)
+            df.to_pickle(output_path)
             dfs.append(df)
-     
+    combined = combine_dfs_and_shuffle(dfs)
+    combined.to_pickle(f'{processed_dir}/combined_spam_ham_dataset.pkl')
+
 
 def main():
     # result = download_phishing_dataset_with_progress("data/raw")

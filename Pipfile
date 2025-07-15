@@ -8,6 +8,9 @@ pandas = "*"
 numpy = "*"
 requests = "*"
 sentence-transformers = "*"
+scikit-learn = "*"
+mlflow = "*"
+hyperopt = "*"
 
 [dev-packages]
 
