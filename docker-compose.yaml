@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mlflow-server:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.mlflow
+    ports:
+      - "8080:8080"
+    volumes:
+      - mlflow_data:/mlflow/artifacts
+      - mlflow_db:/mlflow
+
+
+  data-processing:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.train
+    depends_on:
+      - mlflow-server
+    volumes:
+      - model_data:/app/data
+      - model_artifacts:/app/mlartifacts
+
+    environment:
+      # Deployment-specific configuration that defines service relationships
+      - MLFLOW_TRACKING_URI=http://mlflow-server:8080
+      # You might also set other environment-specific variables here
+      - LOG_LEVEL=DEBUG
+      - PYTHONUNBUFFERED=1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+
+volumes:
+  mlflow_data:
+  mlflow_db:
+  model_data:
+  model_artifacts:

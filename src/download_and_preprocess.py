@@ -6,7 +6,11 @@ import shutil
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from typing import List
+from dotenv import load_dotenv
 
+load_dotenv()  # Load environment variables from .env file
+
+EMBEDDING_MODEL_NAME = os.getenv('EMBEDDING_MODEL_NAME', 'all-MiniLM-L6-v2')
 
 def download_phishing_dataset(
     output_dir="data", 
@@ -70,7 +74,7 @@ def csv_preprocessing(df, fname: str,
     df['source'] = fname
     return df
 
-def embed_text(df, text_column='body', embedding_model="all-MiniLM-L6-v2"):
+def embed_df_text(df, text_column='body', embedding_model=EMBEDDING_MODEL_NAME):
     """
     Embed df text column using specific sentence-transformer embedding model
     """
@@ -79,6 +83,7 @@ def embed_text(df, text_column='body', embedding_model="all-MiniLM-L6-v2"):
     df['embedding'] = df[text_column].apply(lambda x: model.encode(str(x)))
     print('Embedding dtype:', type(df['embedding'][0]))
     return df
+
 def combine_dfs_and_shuffle(dfs: List[pd.DataFrame]):
     combined_df = pd.concat(dfs, ignore_index=True)
     combined_df = combined_df.sample(frac=1).reset_index(drop=True)  # Shuffle the DataFrame
@@ -98,7 +103,7 @@ def process_downloaded_files(input_dir,
             print(f'Processing file: {file}')
             df = pd.read_csv(f'{input_dir}/{file}')
             df = csv_preprocessing(df, file)
-            df = embed_text(df)
+            df = embed_df_text(df)
             output_path = f'{interim_dir}/processed_{file}.pkl'
             print(f'Saving {file} to: {output_path}')
             df.to_pickle(output_path)

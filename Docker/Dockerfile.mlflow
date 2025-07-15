@@ -1,0 +1,22 @@
+FROM python:3.8-slim
+
+# Install MLflow and any database dependencies
+RUN pip install mlflow psycopg2-binary
+
+# Create directory for MLflow artifacts
+# RUN mkdir -p /mlflow/artifacts
+
+# Set working directory
+WORKDIR /mlflow
+
+# Expose the port MLflow server will run on
+EXPOSE 8080
+
+# Start MLflow server with file-based backend for simplicity
+# In production, you'd typically use a proper database
+CMD ["mlflow", "server", \
+     "--host", "0.0.0.0", \
+     "--port", "8080", \
+     "--default-artifact-root", "/mlflow/artifacts", \
+     "--backend-store-uri", "sqlite:///mlflow.db", \
+     "--artifacts-destination", "s3://am-mlflow-backend"]

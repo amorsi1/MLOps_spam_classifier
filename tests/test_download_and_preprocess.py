@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from MLOps_spam_classifier.src.model_train import load_data
-from MLOps_spam_classifier.src.download_and_preprocess import embed_text, csv_preprocessing
+from MLOps_spam_classifier.src.download_and_preprocess import embed_df_text, csv_preprocessing
 
 def test_embeddings():
 
@@ -13,7 +13,7 @@ def test_embeddings():
     assert 'embedding' in comb_df.columns, "Embeddings column not found in DataFrame"
 
     row = comb_df.iloc[3,:]
-    output = embed_text(row)
+    output = embed_df_text(row)
     # check if embedding corresopnds
     assert np.testing.assert_array_almost_equal(row['embedding'], output['embedding']) , "Embedding mismatch for row 3"
     print("Embedding" test passed!")

@@ -1,0 +1,35 @@
+FROM python:3.8-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pipenv
+RUN pip install pipenv
+
+# Copy Pipfile and Pipfile.lock
+COPY app/Pipfile app/Pipfile.lock ./
+# Copy env variables 
+COPY .env ./
+
+# Install Python dependencies
+RUN pipenv install --system --deploy
+
+# Copy application code
+## NOTE: This line also copies over the data directory, hiding any potential issues with generating the correct data. 
+COPY . .
+
+# Create all required directories #mlartifacts
+RUN mkdir -p data/raw data/interim data/processed 
+
+# Set environment variables
+ENV PYTHONPATH=/app
+
+# Run data preprocessing followed by model training
+# CMD ["sh", "-c", "python src/download_and_preprocess.py && python src/model_train.py"]
+CMD ["sh", "-c", "python src/model_train.py"]

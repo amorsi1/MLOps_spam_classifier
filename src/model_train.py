@@ -10,6 +10,9 @@ import numpy as np
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials, space_eval
 from dotenv import load_dotenv
 import uuid
+from time import sleep
+
+sleep(5)
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -87,14 +90,14 @@ def run_train():
     # Optimize hyperparameters
     print("Optimizing hyperparameters...")
     best_params, trials = optimize_hyperparameters(
-        X_train_split, y_train_split, X_val, y_val, max_evals=50
+        X_train_split, y_train_split, X_val, y_val, max_evals=5
     )
   
     
     # Train final model with best parameters
 
     print(f"Best parameters: {best_params}")
-    with mlflow.start_run(run_name=f"optimized_model_{uuid.uuid4().hex[:4]}"):
+    with mlflow.start_run(run_name=f"optimized_run_{uuid.uuid4().hex[:4]}"):
         # Handle solver-penalty compatibility
         if best_params['penalty'] == 'l1':
             best_params['solver'] = 'liblinear'
@@ -105,9 +108,12 @@ def run_train():
         f1 = f1_score(y_test, y_pred, average='weighted')
         mlflow.log_metric("test_f1_score", f1)
         mlflow.set_tag('Run type', 'test model training')
+        
 
         print(f"Final F1 score: {f1}")
         run_id = mlflow.active_run().info.run_id
+        mlflow.register_model(model_uri=f"runs:/{run_id}/model", tags={'f1_score':f1},name="lr-best-model")
+
         print(f"Logged data and model in run {run_id}")
 
 if __name__ == "__main__":
