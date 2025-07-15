@@ -11,6 +11,9 @@ sentence-transformers = "*"
 scikit-learn = "*"
 mlflow = "*"
 hyperopt = "*"
+dotenv = "*"
+pytest = "*"
+pylint = "*"
 
 [dev-packages]
 

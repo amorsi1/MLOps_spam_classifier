@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer
 from typing import List
 
 
-def download_phishing_dataset_with_progress(
+def download_phishing_dataset(
     output_dir="data", 
     filename="raw-phishing-email-dataset.zip",
     chunk_size=8192
