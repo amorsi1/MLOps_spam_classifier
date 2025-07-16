@@ -12,11 +12,16 @@ def test_embeddings():
     # Check if embeddings are present
     assert 'embedding' in comb_df.columns, "Embeddings column not found in DataFrame"
 
-    row = comb_df.iloc[3,:]
-    output = embed_df_text(row)
-    # check if embedding corresopnds
-    assert np.testing.assert_array_almost_equal(row['embedding'], output['embedding']) , "Embedding mismatch for row 3"
-    print("Embedding" test passed!")
+    row_index = 47
+    read_row = comb_df.iloc[row_index,:]['embedding']
+    output = embed_df_text(comb_df.iloc[row_index:row_index+2,:])
+    print(output['embedding'])
+    output_row = output.iloc[0]['embedding']
+    # check if embedding corresponds
+    np.testing.assert_allclose(read_row, output_row, rtol=1e-4) , f"Embedding mismatch for row {row_index}"
+    print("Embedding test passed! embedding matches saved df!")
+
+
 
 def test_csv_preprocessing():
     df = pd.read_csv('data/raw/CEAS_08.csv')
@@ -26,7 +31,3 @@ def test_csv_preprocessing():
     assert 'source' in processed_df.columns, "Source column not added"
     print("CSV preprocessing test passed!")
 
-
-
-if __name__ == "__main__":
-    # test_embeddings()
