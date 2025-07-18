@@ -34,10 +34,10 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
 
-  flask-api:
+  web-app:
     build:
       context: .
-      dockerfile: Docker/Dockerfile.flask
+      dockerfile: Docker/Dockerfile.webapp
     ports: 
       - "4242:4242"
     depends_on:

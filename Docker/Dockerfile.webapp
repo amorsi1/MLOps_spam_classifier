@@ -1,0 +1,33 @@
+FROM python:3.8-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Pipfile and Pipfile.lock
+COPY Pipfile Pipfile.lock ./
+
+# Install pipenv
+RUN pip install pipenv
+
+# Install Python dependencies
+RUN pipenv install --system --deploy
+
+# Copy source code and templates
+COPY src/ ./src/
+COPY templates/ ./templates/
+COPY .env ./
+
+# Expose port
+EXPOSE 4242
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV FLASK_APP=src.serve_model
+
+# Run the Flask app
+CMD ["sh", "-c", "python src/serve_model.py"]

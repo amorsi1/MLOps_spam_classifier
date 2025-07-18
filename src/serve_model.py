@@ -4,7 +4,7 @@ import os
 import time
 from sentence_transformers import SentenceTransformer
 import numpy as np
-from flask import Flask, request, jsonify, current_app
+from flask import Flask, request, jsonify, current_app, render_template
 
 load_dotenv()
 mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI')) 
@@ -80,6 +80,10 @@ class ModelManager:
             "embedding": embedding.tolist()[0]
         }
 
+def index():
+    """Serve the web interface"""
+    return render_template('index.html')
+
 def health_check():
     """Health check endpoint"""
     model_manager = current_app.model_manager
@@ -143,6 +147,7 @@ def create_prediction_app(initialize_models_on_startup=True, max_attempts:int = 
                         print("App will start without models - they can be loaded on first request")
     
     # Register routes
+    app.add_url_rule('/', 'index', index, methods=['GET'])
     app.add_url_rule('/health', 'health_check', health_check, methods=['GET'])
     app.add_url_rule('/predict', 'predict', predict, methods=['POST'])
     
