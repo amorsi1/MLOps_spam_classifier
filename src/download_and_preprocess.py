@@ -80,7 +80,6 @@ def embed_df_text(df, text_column='body', embedding_model=EMBEDDING_MODEL_NAME):
     """
     # Example: df['embedding'] = df[text_column].apply(lambda x: some_embedding_function(x))
     model = SentenceTransformer(embedding_model)
-    print(df)
     df['embedding'] = df[text_column].apply(lambda x: model.encode(str(x)))
     # print('Embedding dtype:', type(df['embedding'][0]))
     return df

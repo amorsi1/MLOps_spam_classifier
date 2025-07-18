@@ -3,7 +3,7 @@ import os
 import pytest
 from unittest.mock import Mock, patch
 
-# Add src to path for imports
+# # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from serve_model import create_prediction_app, ModelManager

@@ -17,7 +17,7 @@ sleep(5)
 load_dotenv()  # Load environment variables from .env file
 
 mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI')) #configure backend DB 
-mlflow.set_experiment('embedding-spam-ham-classifier')
+mlflow.set_experiment('embedding-spam-ham-classifier-s3')
 mlflow.sklearn.autolog()  # Automatically log parameters, metrics, and models
 
 def load_data(combined_df_path: str):
@@ -108,6 +108,7 @@ def run_train():
         f1 = f1_score(y_test, y_pred, average='weighted')
         mlflow.log_metric("test_f1_score", f1)
         mlflow.set_tag('Run type', 'test model training')
+        mlflow.sklearn.log_model(model, "model") #explicitly log model, although autologger should do it
         
 
         print(f"Final F1 score: {f1}")

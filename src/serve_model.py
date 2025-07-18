@@ -1,13 +1,14 @@
 import mlflow 
 from dotenv import load_dotenv
 import os
+import time
 from sentence_transformers import SentenceTransformer
 import numpy as np
 from flask import Flask, request, jsonify, current_app
 
 load_dotenv()
 mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI')) 
-mlflow.set_experiment('embedding-spam-ham-classifier')
+mlflow.set_experiment('embedding-spam-ham-classifier-s3')
 
 EMBEDDING_MODEL_NAME = os.getenv('EMBEDDING_MODEL_NAME', 'all-MiniLM-L6-v2')
 
@@ -21,7 +22,18 @@ class ModelManager:
     
     def load_model_from_registry(self, model_name: str = "lr-best-model", version: str = "latest"):
         """Load ML model from MLflow registry"""
+        print(f"MLflow tracking URI: {mlflow.get_tracking_uri()}")
         model_uri = f"models:/{model_name}/{version}"
+        print(f"Attempting to load model URI: {model_uri}")
+        
+        # Debug: Check what registered models exist
+        try:
+            client = mlflow.MlflowClient()
+            models = client.search_registered_models()
+            print(f"Available registered models: {[m.name for m in models]}")
+        except Exception as e:
+            print(f"Failed to list registered models: {e}")
+        
         model = mlflow.sklearn.load_model(model_uri)
         print(f"Model loaded from registry: {model_name}, version: {version}")
         return model
@@ -108,7 +120,7 @@ def predict():
     except Exception as e:
         return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
 
-def create_prediction_app(initialize_models_on_startup=True):
+def create_prediction_app(initialize_models_on_startup=True, max_attempts:int = 6):
     """Application factory pattern for creating Flask app"""
     app = Flask('vector_spam_classifier')
     
@@ -117,8 +129,18 @@ def create_prediction_app(initialize_models_on_startup=True):
     
     # Initialize models if requested
     if initialize_models_on_startup:
-        with app.app_context():
-            app.model_manager.initialize_models()
+        with app.app_context(): 
+            for attempt in range(max_attempts):
+                try:
+                    app.model_manager.initialize_models()
+                    break
+                except Exception as e:
+                    if attempt < max_attempts - 1:
+                        print(f"⏳ Waiting for models... (attempt {attempt + 1}/{max_attempts})")
+                        time.sleep(10)
+                    else:
+                        print(f"Failed to initialize models on startup: {e}")
+                        print("App will start without models - they can be loaded on first request")
     
     # Register routes
     app.add_url_rule('/health', 'health_check', health_check, methods=['GET'])
@@ -142,4 +164,4 @@ def main(text="I am nigerian prince here to give you free money, cocaine, and vi
 if __name__ == "__main__":
     # For development/testing
     app = create_prediction_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=4242, debug=True)
