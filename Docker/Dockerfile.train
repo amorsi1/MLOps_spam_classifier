@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip install pipenv
 
 # Copy Pipfile and Pipfile.lock
-COPY app/Pipfile app/Pipfile.lock ./
+COPY Pipfile Pipfile.lock ./
 # Copy env variables 
 COPY .env ./
 

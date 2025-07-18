@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.8-slim
 
 WORKDIR /app
 
@@ -8,24 +8,24 @@ RUN apt-get update && apt-get install -y \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Pipfile and Pipfile.lock (now at root level)
+# Copy Pipfile and Pipfile.lock
 COPY Pipfile Pipfile.lock ./
 
-# Install pipenv and dependencies
-RUN pip install pipenv && \
-    pipenv install --deploy --ignore-pipfile
+# Install pipenv
+RUN pip install pipenv
 
-# Copy source code and application files
+# Install Python dependencies
+RUN pipenv install --system --deploy
+# Copy source code
 COPY src/ ./src/
-COPY application.py ./
 COPY .env ./
 
 # Expose port
-EXPOSE 5000
+EXPOSE 4242
 
 # Set environment variables
 ENV PYTHONPATH=/app
-ENV FLASK_APP=application
+ENV FLASK_APP=src.serve_model
 
 # Run the Flask app
-CMD ["pipenv", "run", "python", "application.py"]
+CMD ["sh", "-c", "python src/serve_model.py"]
