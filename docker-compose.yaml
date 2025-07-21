@@ -26,7 +26,8 @@ services:
 
     environment:
       # Deployment-specific configuration that defines service relationships
-      - MLFLOW_TRACKING_URI=http://mlflow-server:8080
+      #- MLFLOW_TRACKING_URI=http://mlflow-server:8080
+      - MLFLOW_TRACKING_URI=https://iidmn3uxxi.us-east-1.awsapprunner.com
       # You might also set other environment-specific variables here
       - LOG_LEVEL=DEBUG
       - PYTHONUNBUFFERED=1

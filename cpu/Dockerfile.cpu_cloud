@@ -15,8 +15,11 @@ COPY cpu/Pipfile.cpu ./Pipfile
 # Install pipenv
 RUN pip install pipenv
 
-# Then install other dependencies
+# Install dependencies from Pipfile
 RUN pipenv install --system --deploy
+
+# Install sentence-transformers without dependencies to prevent PyTorch upgrade
+RUN pip install --no-deps sentence-transformers
 
 # Copy source code
 COPY src/ ./src/

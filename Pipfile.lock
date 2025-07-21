@@ -247,11 +247,11 @@
         },
         "databricks-sdk": {
             "hashes": [
-                "sha256:8f5a35e42cc3f8a065d2e7c2d1aa5fb2fbaf3f5f0b475b75f5af17234f02abbd",
-                "sha256:9be3985f1297c5e605103e0df3aa5a2ee6fda56e9d83721f376af7c6855bcb90"
+                "sha256:2ae4baefd1f7360c8314e2ebdc0a0a6d7e76a88805a65d0415ff73631c1e4c0d",
+                "sha256:f60a27f00ccdf57d8496dd4a2e46ad17bb9557add09a6b2e23d46f29c0bca613"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==0.58.0"
+            "version": "==0.59.0"
         },
         "deprecated": {
             "hashes": [

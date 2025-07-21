@@ -19,11 +19,21 @@ dotenv = "*"
 boto3 = "*"
 flask = "*"
 gunicorn = "*"
+
+# Essential sentence-transformers dependencies
+transformers = ">=4.41.0,<5.0.0"
+tqdm = "*"
+scipy = "*"
+huggingface-hub = ">=0.20.0"
+pillow = "*"
+typing-extensions = ">=4.5.0"
+# ONNX support dependencies
+optimum = {version = ">=1.23.1", extras = ["onnxruntime"]}
+
 # Explicitly specify CPU-only torch from the CPU index
-torch = {version = "*", index = "pytorch-cpu"}
+torch = {version = ">=1.11.0", index = "pytorch-cpu"}
 torchvision = {version = "*", index = "pytorch-cpu"}
 torchaudio = {version = "*", index = "pytorch-cpu"}
-sentence-transformers = "*"
 
 [dev-packages]
 pytest = "*"

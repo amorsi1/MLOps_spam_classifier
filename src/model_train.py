@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 import uuid
 from time import sleep
 
-sleep(5)
+sleep(5) #to give mlflow server time to launch before running docker-compose 
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -90,7 +90,7 @@ def run_train():
     # Optimize hyperparameters
     print("Optimizing hyperparameters...")
     best_params, trials = optimize_hyperparameters(
-        X_train_split, y_train_split, X_val, y_val, max_evals=5
+        X_train_split, y_train_split, X_val, y_val, max_evals=30
     )
   
     
