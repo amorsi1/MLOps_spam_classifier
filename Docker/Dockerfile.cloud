@@ -1,0 +1,33 @@
+FROM python:3.8-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Pipfile and Pipfile.lock
+COPY Pipfile Pipfile.lock ./
+
+# Install pipenv
+RUN pip install pipenv
+
+# Install Python dependencies
+RUN pipenv install --system --deploy
+
+# Copy source code
+COPY src/ ./src/
+COPY templates/ ./templates/
+COPY .env ./
+
+# Expose port (App Runner expects 8080 by default)
+EXPOSE 4242
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV FLASK_APP=src.serve_model
+
+# Run the Flask app with gunicorn for production
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:4242 --timeout 300 --workers 1 'src.serve_model:create_prediction_app()'"]

@@ -3,132 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Spam Classifier</title>
+    <title>THREAT SCANNER - Email Analysis System</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;700&display=swap');
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
+            font-family: 'Source Code Pro', monospace;
+            max-width: 900px;
+            margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background: #f5f1e8;
+            color: #2d2d2d;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
+        
         .container {
-            background-color: white;
+            background: #ffffff;
+            border: 3px solid #2d2d2d;
+            border-radius: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
         }
-        h1 {
-            color: #333;
+        
+        
+        .header {
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
         }
+        
+        h1 {
+            color: #b8341a;
+            font-size: 2.2em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        
+        .subtitle {
+            color: #8b4513;
+            font-size: 0.9em;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .warning {
+            background: #fff2e6;
+            border: 2px solid #b8341a;
+            padding: 15px;
+            margin-bottom: 25px;
+            color: #b8341a;
+            font-size: 0.85em;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
+        
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
+            margin-bottom: 8px;
+            color: #2d5016;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
         }
+        
         textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 2px solid #2d5016;
+            color: #2d2d2d;
+            font-family: 'Source Code Pro', monospace;
             font-size: 14px;
             resize: vertical;
+            box-sizing: border-box;
         }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #b8341a;
+            background: #ffffff;
+        }
+        
         button {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
+            background: #b8341a;
+            color: #ffffff;
+            padding: 15px 40px;
+            border: 3px solid #b8341a;
             cursor: pointer;
             font-size: 16px;
+            font-family: 'Source Code Pro', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             display: block;
-            margin: 20px auto;
+            margin: 25px auto;
+            transition: all 0.3s ease;
         }
+        
         button:hover {
-            background-color: #0056b3;
+            background: #ffffff;
+            color: #b8341a;
+            transform: translateY(-2px);
         }
+        
         button:disabled {
-            background-color: #6c757d;
+            background: #888;
+            color: #ccc;
+            border-color: #888;
             cursor: not-allowed;
         }
+        
         .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .result.spam {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-        .result.ham {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-        .confidence {
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .examples {
-            margin-top: 30px;
+            margin-top: 25px;
             padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+            text-align: center;
+            border: 2px solid;
+            position: relative;
         }
+        
+        .result.spam {
+            background: #fff2e6;
+            border-color: #b8341a;
+            color: #b8341a;
+        }
+        
+        .result.ham {
+            background: #f0f7e6;
+            border-color: #2d5016;
+            color: #2d5016;
+        }
+        
+        .confidence {
+            font-size: 0.85em;
+            margin-top: 15px;
+            font-weight: 300;
+        }
+        
+        .examples {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f0f0f0;
+            border: 2px solid #666;
+        }
+        
+        .examples h3 {
+            color: #8b4513;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        
         .example {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: white;
-            border-left: 4px solid #007bff;
+            margin: 15px 0;
+            padding: 15px;
+            background: #ffffff;
+            border-left: 4px solid #666;
             cursor: pointer;
+            transition: all 0.3s ease;
+            color: #2d2d2d;
         }
+        
         .example:hover {
-            background-color: #f0f8ff;
+            border-left-color: #2d5016;
+            background: #f0f7e6;
+            color: #2d5016;
         }
+        
+        .example.threat {
+            border-left-color: #b8341a;
+        }
+        
+        .example.threat:hover {
+            border-left-color: #b8341a;
+            background: #fff2e6;
+            color: #b8341a;
+        }
+        
         .loading {
             text-align: center;
-            color: #666;
+            color: #8b4513;
+        }
+        
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #2d2d2d;
+            color: #f5f1e8;
+            padding: 10px;
+            font-size: 0.8em;
+            text-align: center;
+            border-top: 2px solid #2d2d2d;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🛡️ Email Spam Classifier</h1>
-        <p style="text-align: center; color: #666; margin-bottom: 30px;">
-            Enter email text below to classify it as spam or ham (legitimate email)
-        </p>
+        <div class="header">
+            <h1>THREAT SCANNER</h1>
+            <div class="subtitle">Email Analysis System v2.1</div>
+        </div>
+        
+        <div class="warning">
+            WARNING: Analyzing potentially malicious content. Proceed with caution.
+        </div>
         
         <form onsubmit="classifyEmail(event)">
             <div class="form-group">
-                <label for="email-text">Email Content:</label>
-                <textarea id="email-text" placeholder="Paste email content here..." rows="8" required></textarea>
+                <label for="email-text">Suspicious Message Content:</label>
+                <textarea id="email-text" placeholder="[PASTE INTERCEPTED MESSAGE FOR ANALYSIS]" rows="8" required></textarea>
             </div>
-            <button type="submit" id="classify-btn">Classify Email</button>
+            <button type="submit" id="classify-btn">ANALYZE THREAT</button>
         </form>
         
         <div id="result" class="result" style="display: none;"></div>
         
         <div class="examples">
-            <h3>📝 Try these examples:</h3>
-            <div class="example" onclick="useExample(this)">
-                <strong>Spam Example:</strong> FREE VIAGRA! Click here now to get your free pills! Limited time offer! No prescription needed! Order now and get 50% off! Call 1-800-VIAGRA or visit freeviagratoday.com
+            <h3>KNOWN THREAT SAMPLES:</h3>
+            <div class="example threat" onclick="useExample(this)">
+                <strong>[MALICIOUS PAYLOAD DETECTED]:</strong> FREE VIAGRA! Click here now to get your free pills! Limited time offer! No prescription needed! Order now and get 50% off! Call 1-800-VIAGRA or visit freeviagratoday.com
             </div>
             <div class="example" onclick="useExample(this)">
-                <strong>Ham Example:</strong> Hi John, I hope you're doing well. I wanted to follow up on our meeting yesterday about the project timeline. Could you please send me the updated requirements document? Thanks!
+                <strong>[LEGITIMATE TRAFFIC]:</strong> Hi John, I hope you're doing well. I wanted to follow up on our meeting yesterday about the project timeline. Could you please send me the updated requirements document? Thanks!
             </div>
-            <div class="example" onclick="useExample(this)">
-                <strong>Spam Example:</strong> You have won $1,000,000 in our lottery! To claim your prize, send your social security number and bank details to winner@lottery-scam.com. Act fast!
+            <div class="example threat" onclick="useExample(this)">
+                <strong>[FINANCIAL SCAM IDENTIFIED]:</strong> You have won $1,000,000 in our lottery! To claim your prize, send your social security number and bank details to winner@lottery-scam.com. Act fast!
             </div>
         </div>
+    </div>
+    
+    <div class="status-bar">
+        SYSTEM STATUS: ONLINE | THREAT DATABASE: UPDATED | SCAN ENGINE: ACTIVE
     </div>
 
     <script>
@@ -141,13 +261,13 @@
             
             const text = textArea.value.trim();
             if (!text) {
-                alert('Please enter some email text to classify.');
+                alert('[ERROR] No message content detected. Please provide sample for analysis.');
                 return;
             }
             
             // Show loading state
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Classifying...';
+            submitBtn.textContent = 'SCANNING...';
             resultDiv.style.display = 'none';
             
             try {
@@ -171,33 +291,33 @@
                 
                 resultDiv.className = `result ${result.prediction_label}`;
                 resultDiv.innerHTML = `
-                    <h3>${isSpam ? '🚨 SPAM' : '✅ HAM (Legitimate)'}</h3>
-                    <div class="confidence">Confidence: ${confidence}%</div>
-                    <div style="margin-top: 10px; font-size: 12px; color: #666;">
-                        Ham: ${(result.confidence.ham * 100).toFixed(1)}% | 
-                        Spam: ${(result.confidence.spam * 100).toFixed(1)}%
+                    <h3>${isSpam ? '[THREAT DETECTED]' : '[CLEAN - LEGITIMATE TRAFFIC]'}</h3>
+                    <div class="confidence">ANALYSIS CONFIDENCE: ${confidence}%</div>
+                    <div style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
+                        LEGITIMATE: ${(result.confidence.ham * 100).toFixed(1)}% | 
+                        MALICIOUS: ${(result.confidence.spam * 100).toFixed(1)}%
                     </div>
                 `;
                 resultDiv.style.display = 'block';
                 
             } catch (error) {
                 console.error('Error:', error);
-                resultDiv.className = 'result';
+                resultDiv.className = 'result spam';
                 resultDiv.innerHTML = `
-                    <h3>❌ Error</h3>
-                    <p>Failed to classify email. Please try again.</p>
-                    <div style="font-size: 12px; color: #666;">Error: ${error.message}</div>
+                    <h3>[SYSTEM ERROR]</h3>
+                    <p>Analysis engine offline. Retry connection.</p>
+                    <div style="font-size: 12px; opacity: 0.7;">Error: ${error.message}</div>
                 `;
                 resultDiv.style.display = 'block';
             } finally {
                 // Reset button
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Classify Email';
+                submitBtn.textContent = 'ANALYZE THREAT';
             }
         }
         
         function useExample(element) {
-            const text = element.textContent.replace(/^(Spam|Ham) Example:\s*/, '');
+            const text = element.textContent.replace(/^\[.*?\]:\s*/, '');
             document.getElementById('email-text').value = text;
         }
         
@@ -208,9 +328,9 @@
                 if (!response.ok) {
                     throw new Error('Health check failed');
                 }
-                console.log('✅ API connection successful');
+                console.log('[SYSTEM] API connection established');
             } catch (error) {
-                console.error('❌ API connection failed:', error);
+                console.error('[ERROR] API connection failed:', error);
             }
         });
     </script>

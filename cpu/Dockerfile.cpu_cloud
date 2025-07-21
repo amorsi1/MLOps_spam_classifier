@@ -1,0 +1,34 @@
+FROM --platform=linux/amd64 python:3.8-slim
+#platform code build specifically for linux cloud computer
+
+WORKDIR /app
+
+# Install system dependencies if needed
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy CPU-only requirements
+COPY cpu/Pipfile.cpu.lock ./Pipfile.lock
+COPY cpu/Pipfile.cpu ./Pipfile
+# Install pipenv
+RUN pip install pipenv
+
+# Then install other dependencies
+RUN pipenv install --system --deploy
+
+# Copy source code
+COPY src/ ./src/
+COPY templates/ ./templates/
+COPY .env ./
+
+# Environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV PORT=4242
+
+EXPOSE 4242
+
+# Use gunicorn for production
+CMD ["gunicorn", "--bind", "0.0.0.0:4242", "--workers", "2", "--timeout", "300", "src.serve_model:create_prediction_app()"]
