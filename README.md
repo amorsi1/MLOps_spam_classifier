@@ -16,7 +16,7 @@ whether or not it's spam.
 <img width="2400" height="1148" alt="MLOps spam_ham architecture" src="https://github.com/user-attachments/assets/a660a559-7d8c-42ee-a1a8-4de40d811a58" />
 
 ## Installation instructions
-Clone the repo and install venv
+Clone the repo and install dependencies
 ```
 git clone https://github.com/amorsi1/MLOps_spam_classifier.git
 pip install pipenv
