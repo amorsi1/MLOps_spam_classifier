@@ -4,6 +4,7 @@ Tests the full pipeline: data-processing saves to S3 -> flask-api loads from S3
 """
 
 import pytest
+import os
 import time
 import requests
 import json
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 # Test configuration
 MLFLOW_URI = "http://localhost:8080"
 FLASK_API_URL = "http://localhost:4242"
-S3_BUCKET = "am-mlflow-backend"
+S3_BUCKET = os.getenv("S3_BUCKET")
 TEST_EXPERIMENT_NAME = "integration-test-s3-mlflow"
 TEST_MODEL_NAME = "integration-test-model"
 
@@ -90,7 +91,7 @@ class TestS3MLflowIntegration:
         
         # Test S3 access via docker exec
         result = subprocess.run([
-            "docker-compose", "exec", "-T", "mlflow-server", "python", "-c",
+            "docker-compose", "exec", "-t", "mlflow-server", "python", "-c",
             f"""
 import boto3
 try:
@@ -188,7 +189,7 @@ with mlflow.start_run():
         
         return run_id
 
-    def test_flask_api_model_loading_from_s3(self):
+    def test_cloud_api_model_loading_from_s3(self):
         """Test that Flask API can load the registered model from S3"""
         logger.info("Testing Flask API model loading from S3...")
         
@@ -200,7 +201,7 @@ with mlflow.start_run():
         
         # Test model loading via docker exec
         result = subprocess.run([
-            "docker-compose", "exec", "-T", "flask-api", "python", "-c",
+            "docker-compose", "exec", "-T", "web-app", "python", "-c",
             f"""
 import mlflow
 import mlflow.sklearn
@@ -257,10 +258,29 @@ except Exception as e:
         """Test that data-processing service can train and save to S3"""
         logger.info("Testing data-processing service S3 integration...")
         
-        # Run a simplified training process
-        result = subprocess.run([
-            "docker-compose", "exec", "-T", "data-processing", "python", "-c",
-            f"""
+        # Check if data-processing container is running, start if needed
+        check_container = subprocess.run([
+            "docker", "ps", "--filter", "name=data-processing", "--format", "{{.Names}}"
+        ], capture_output=True, text=True, cwd="/Users/afmorsi/dev/MLOps_spam_classifier")
+        
+        container_started = False
+        if "data-processing" not in check_container.stdout:
+            logger.info("Starting data-processing container for testing...")
+            subprocess.run([
+                "docker-compose", "run", "-d", "--name", "data-processing-test", 
+                "data-processing", "sleep", "infinity"
+            ], check=True, cwd="/Users/afmorsi/dev/MLOps_spam_classifier")
+            container_started = True
+            container_name = "data-processing-test"
+        else:
+            # Find the actual running container name
+            container_name = check_container.stdout.strip().split('\n')[0]
+        
+        try:
+            # Run a simplified training process
+            result = subprocess.run([
+                "docker", "exec", "-t", container_name, "python", "-c",
+                f"""
 import mlflow
 import mlflow.sklearn
 from sklearn.linear_model import LogisticRegression
@@ -293,13 +313,21 @@ with mlflow.start_run():
     else:
         print(f'DATA_PROCESSING_LOCAL:{{artifact_uri}}')
 """
-        ], capture_output=True, text=True, cwd="/Users/afmorsi/dev/MLOps_spam_classifier")
+            ], capture_output=True, text=True, cwd="/Users/afmorsi/dev/MLOps_spam_classifier")
+            
+            logger.info(f"Data processing result: {result.stdout}")
+            logger.info(f"Data processing errors: {result.stderr}")
+            
+            assert "DATA_PROCESSING_S3_SUCCESS:" in result.stdout, f"Data processing S3 integration failed: {result.stdout + result.stderr}"
+            logger.info("✅ Data-processing service S3 integration verified")
         
-        logger.info(f"Data processing result: {result.stdout}")
-        logger.info(f"Data processing errors: {result.stderr}")
-        
-        assert "DATA_PROCESSING_S3_SUCCESS:" in result.stdout, f"Data processing S3 integration failed: {result.stdout + result.stderr}"
-        logger.info("✅ Data-processing service S3 integration verified")
+        finally:
+            # Cleanup: remove the test container if we started it
+            if container_started:
+                logger.info("Cleaning up test container...")
+                subprocess.run([
+                    "docker", "rm", "-f", "data-processing-test"
+                ], capture_output=True, cwd="/Users/afmorsi/dev/MLOps_spam_classifier")
 
 if __name__ == "__main__":
     # Allow running as a script for debugging
