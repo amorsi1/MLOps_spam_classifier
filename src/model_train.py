@@ -1,4 +1,5 @@
 import mlflow
+from mlflow.tracking import MlflowClient
 import os
 from typing import List
 from sklearn.model_selection import train_test_split
@@ -19,6 +20,7 @@ load_dotenv()  # Load environment variables from .env file
 mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI')) #configure backend DB 
 mlflow.set_experiment('embedding-spam-ham-classifier-s3')
 mlflow.sklearn.autolog()  # Automatically log parameters, metrics, and models
+MLFLOW_MODEL_NAME =os.getenv('MLFLOW_MODEL_NAME',"lr-best-model" )
 
 def load_data(combined_df_path: str):
 # def combine_datasets(List[pd.DataFrame]):
@@ -113,8 +115,32 @@ def run_train():
 
         print(f"Final F1 score: {f1}")
         run_id = mlflow.active_run().info.run_id
-        mlflow.register_model(model_uri=f"runs:/{run_id}/model", tags={'f1_score':f1},name="lr-best-model")
-
+        
+        # Compare with current model and register if better
+        client = MlflowClient()
+        should_register = True
+        current_f1 = None
+        
+        try:
+            # Get the latest version of the current model
+            latest_model = client.get_latest_versions(MLFLOW_MODEL_NAME, stages=["None"])
+            if latest_model:
+                current_version = latest_model[0]
+                # Get F1 score from model tags
+                if 'f1_score' in current_version.tags:
+                    current_f1 = float(current_version.tags['f1_score'])
+                    if f1 <= current_f1:
+                        should_register = False
+                        print(f"Current model F1 score ({current_f1:.4f}) is better than or equal to new model ({f1:.4f}). Not registering.")
+                    else:
+                        print(f"New model F1 score ({f1:.4f}) is better than current model ({current_f1:.4f}). Registering new model.")
+        except Exception as e:
+            print(f"No existing model found or error retrieving it: {e}. Registering new model.")
+        
+        if should_register:
+            mlflow.register_model(model_uri=f"runs:/{run_id}/model", tags={'f1_score':f1}, name=MLFLOW_MODEL_NAME)
+            print(f"Model registered with F1 score: {f1:.4f}")
+        
         print(f"Logged data and model in run {run_id}")
 
 if __name__ == "__main__":

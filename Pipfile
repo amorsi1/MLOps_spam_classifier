@@ -12,8 +12,8 @@ scikit-learn = "*"
 mlflow = "*"
 hyperopt = "*"
 dotenv = "*"
-boto3 = "*"
 flask = "*"
+boto3 = "*"
 
 [dev-packages]
 pytest = "*"
