@@ -18,7 +18,7 @@ whether or not it's spam.
 ## Installation instructions
 Clone the repo and install dependencies
 ```
-git clone https://github.com/amorsi1/MLOps_spam_classifier.git
+git clone https://github.com/amorsi1/MLOps_spam_classifier
 pip install pipenv
 cd MLOps_spam_classifier.git
 pipenv install 
